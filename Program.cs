@@ -216,7 +216,7 @@ internal class Program
             else
                 Logger.LogInfo($"{tableDataInfo.FileName} - {tableDataInfo.TableName} 导表完成");
         }
-        
+
         // 更新翻译表
         Logger.LogInfo("更新多语言表信息");
         ExportLuaHelper.RefreshMultiLanguageData();

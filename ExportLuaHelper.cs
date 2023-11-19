@@ -836,7 +836,7 @@ internal class ExportLuaHelper
         content.Remove(content.Length - 1, 1);
         content.AppendLine("}");
         content.AppendLine();
-        
+
         content.AppendLine("---@type Cfg_I18n");
         content.AppendLine("local t = { language = \"en\" }");
         //添加原表操作
