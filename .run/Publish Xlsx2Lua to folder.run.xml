@@ -1,0 +1,6 @@
+﻿<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Publish Xlsx2Lua to folder" type="DotNetFolderPublish" factoryName="Publish to folder">
+    <riderPublish configuration="Release" include_native_libs_for_self_extract="true" platform="Any CPU" produce_single_file="true" runtime="osx-x64" self_contained="true" target_folder="$PROJECT_DIR$/bin/Release/net7.0/osx-x64/publish" target_framework="net7.0" trim_unused_assemblies="true" uuid_high="967158123904518338" uuid_low="-9145259920402227939" />
+    <method v="2" />
+  </configuration>
+</component>
