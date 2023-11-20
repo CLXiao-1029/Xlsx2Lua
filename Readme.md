@@ -1,5 +1,6 @@
 # XlsxToLua
 一款将Excel数据转换成lua表的工具。
+> .\Xlsx2Lua.exe ..\Config ..\Game\Scripts\Data .lua 6 false true true true true false 0 true
 
 ## .Net 版本
 >`>= v.7.0.201`
@@ -33,7 +34,7 @@
 | 8 | `bool` | `true` | 否 | 是否开启翻译统计 |
 | 9 | `bool` | `true` | 否 | 是否开启实时翻译 |
 | 10 | `bool` | `true` | 否 | 是否显示导表耗时 |
-| 11 | `bool` | `true` | 否 | 是否显示控制台日志 |
+| 11 | `int` | `0` | 否 | 显示控制台日志等级 0：All,1:warning、error,2:error |
 | 12 | `bool` | `false` | 否 | 是否输出日志文件 |
 
 ##### 配置文件数据
