@@ -1,6 +1,6 @@
 # XlsxToLua
 一款将Excel数据转换成lua表的工具。
-> .\Xlsx2Lua.exe ..\..\Config ..\Game\Scripts\Data .lua 6 false true true true true false 0 true
+> .\Xlsx2Lua.exe ..\Config ..\Game\Scripts\Data .lua 6 false true true true true false 0 true
 
 ## .Net 版本
 >`>= v.7.0.201`
