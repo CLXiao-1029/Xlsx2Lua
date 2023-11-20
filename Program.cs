@@ -20,6 +20,8 @@ internal class Program
             InitData(args);
 
             DateTime dateTimeAll = DateTime.Now;
+            AppConfig.RefreshCommitRecord();
+            Logger.LogWarning($"当前Config的最新提交记录：{AppConfig.CommitRecord}");
             LoadMultiLanguageData();
             LoadExcelData();
             StartExcelToLua();
@@ -52,6 +54,8 @@ internal class Program
             }
             else
             {
+                AppConfig.ReadConfigData();
+                
                 if (args.Length < 1)
                 {
                     Logger.LogErrorAndExit("未输入Excel表格所在目录");
