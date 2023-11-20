@@ -610,6 +610,8 @@ internal class ExportLuaHelper
         {
             comment.Append(keyValuePair.Value);
         }
+        comment.Append('\n');
+        comment.AppendLine($"--ConfigLatestCommit:{AppConfig.CommitRecord}");
 
         return comment;
     }
@@ -648,6 +650,8 @@ internal class ExportLuaHelper
         }
         else
         {
+            content.AppendLine($"--ConfigLatestCommit:{AppConfig.CommitRecord}");
+            
             if (AppConfig.AppData.CommentFile)
                 AppendLineContent(content, $"---@type Cfg_{tableName}[]");
             else
@@ -717,7 +721,14 @@ internal class ExportLuaHelper
                             {
                                // 不一样则加入标志，填入翻译表的附表中
                                // 第一列填入key,第二列填入新值，第二列填入旧值
-                               MultilingualListTmp.Add(keyId,new List<object>(){multilingual[0],rowData});
+                               if (MultilingualListTmp.ContainsKey(keyId))
+                               {
+                                   MultilingualListTmp[keyId] = new List<object>() { multilingual[0], rowData };
+                               }
+                               else
+                               {
+                                   MultilingualListTmp.Add(keyId,new List<object>(){multilingual[0],rowData});
+                               }
                             }
                         }
                     }
@@ -782,6 +793,7 @@ internal class ExportLuaHelper
         {
             string name = folders[i];
             StringBuilder merge = new StringBuilder();
+            merge.AppendLine($"--ConfigLatestCommit:{AppConfig.CommitRecord}");
             merge.AppendLine($"---@type Cfg_{name}");
 
             merge.AppendLine($"local cfg_{name} = {{");
@@ -862,6 +874,7 @@ internal class ExportLuaHelper
         MultilingualKeys.Clear();
         MultilingualNames.Clear();
         MultilingualDataDic.Clear();
+        MultilingualListTmp.Clear();
 
         if (File.Exists(filePath))
         {
@@ -878,7 +891,6 @@ internal class ExportLuaHelper
                 int columns = worksheet.Dimension.Columns;
                 
                 //获取注释数据
-                
                 for (int column = 2; column <= columns; ++column)
                 {
                     var data = worksheet.Cells[1, column];
@@ -903,6 +915,27 @@ internal class ExportLuaHelper
                         values.Add(rowData);
                     }
                     MultilingualList.Add(mainKey,values);
+                }
+                //获取附表
+                if (package.Workbook.Worksheets.Count > 1)
+                {
+                    ExcelWorksheet worksheet1 = package.Workbook.Worksheets[1];
+                    if (worksheet1 != null)
+                    {
+                        for (int row = 4; row < rows + 1; ++row)
+                        {
+                            var mainKey = worksheet1.Cells[row, 1].Value;
+                            List<object> values = new List<object>();
+                            for (int column = 2; column <= columns; ++column)
+                            {
+                                var data = worksheet1.Cells[row, column];
+                                var rowData = data.Value;
+                                //Logger.LogInfo($"行数[{row}],列数[{column}],名字:{data},数据:{rowData}");
+                                values.Add(rowData);
+                            }
+                            MultilingualListTmp.Add(mainKey,values);
+                        }
+                    }
                 }
             }
         }
@@ -991,6 +1024,41 @@ internal class ExportLuaHelper
             {
                 worksheet.Rows[i + 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
                 worksheet.Rows[i + 1].Style.Fill.BackgroundColor.SetColor(255,112,173,71);
+            }
+            
+            // 添加附表
+            if (MultilingualListTmp.Count > 0)
+            {
+                package.Workbook.Worksheets.Add("差异表");
+                ExcelWorksheet worksheet1 = package.Workbook.Worksheets[1];
+                worksheet1.Cells[1, 1].Value = "多语言Key";
+                worksheet1.Cells[2, 1].Value = "key";
+                worksheet1.Cells[1, 2].Value = "现在的文本";
+                worksheet1.Cells[2, 2].Value = "zh";
+                worksheet1.Cells[1, 3].Value = "之前的文本";
+                worksheet1.Cells[2, 3].Value = "zh";
+                Logger.LogInfo($"准备写出工作【{worksheet.Name}】");
+                // 添加内容
+                var tmpKeys = MultilingualListTmp.Keys.ToArray();
+                for (int i = 0; i < tmpKeys.Length; i++)
+                {
+                    var key = tmpKeys[i];
+                    var lst = MultilingualListTmp[key];
+                    //从第四行第一列开始
+                    worksheet1.Cells[i + 4, 1].Value = key;
+                    for (int j = 0; j < lst.Count; j++)
+                    {
+                        var val = lst[j];
+                        //第二列开始
+                        worksheet1.Cells[i + 4, j+ 2].Value = val;
+                    }
+                }
+                // 修改表头背景颜色
+                for (int i = 0; i < 3; i++)
+                {
+                    worksheet1.Rows[i + 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    worksheet1.Rows[i + 1].Style.Fill.BackgroundColor.SetColor(255,112,173,71);
+                }
             }
             
             // 保存

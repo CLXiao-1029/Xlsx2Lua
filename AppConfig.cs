@@ -193,13 +193,20 @@ internal class AppConfig
 
     public static AppData AppData = new AppData();
 
+    /// <summary>
+    /// 缩进值
+    /// </summary>
     public static int IndentLevel = 1;
+    
+    /// <summary>
+    /// 提交记录
+    /// </summary>
+    public static string CommitRecord = "";
 
     public static List<string> varInfos = new List<string>();
     public static List<string> varNames = new List<string>();
     public static List<string> varTypes = new List<string>();
     public static StringBuilder varTypeInfos = new StringBuilder();
-    public static Dictionary<object, List<object>> multilingualDataList = new Dictionary<object, List<object>>();
     
     /// <summary>
     /// 配置表数据缓存
@@ -318,11 +325,11 @@ internal class AppConfig
         content.AppendLine();
     }
     
-    public static void TryAddTranslations(string key, string data)
+    /// <summary>
+    /// 获取Config的提交记录
+    /// </summary>
+    public static void RefreshCommitRecord()
     {
-        if (!multilingualDataList.ContainsKey(key))
-        {
-            multilingualDataList.Add(key,new List<object>(){data});
-        }
+        CommitRecord = TortoiseGitHelper.GetLatestCommitRecord(AppData.ConfigPath);
     }
 }
