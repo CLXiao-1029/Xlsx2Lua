@@ -850,17 +850,18 @@ internal class ExportLuaHelper
         content.AppendLine();
 
         content.AppendLine("---@type Cfg_I18n");
-        content.AppendLine("local t = { language = \"en\" }");
+        content.AppendLine("local cfg_i18n = { language = \"en\" }");
         //添加原表操作
-        content.AppendLine("setmetatable(t, {");
+        content.AppendLine("setmetatable(cfg_i18n, {");
         content.AppendLine("\t__index = function (t, key)");
         content.AppendLine("\t\tif i18n[key] then return i18n[key][t.language] end");
-        content.AppendLine("\t\tassert(i18n[key],(\"index == nil 多语言中不存在键：%s\\n%s\"):format(tostring(key), debug.traceback()))");
+        content.AppendLine("\t\tprint(i18n[key],(\"index == nil 多语言中不存在键：%s\\n%s\"):format(tostring(key), debug.traceback()))");
+        content.AppendLine("\t\treturn tostring(key)");
         content.AppendLine("\tend");
         content.AppendLine("})");
         content.AppendLine();
         
-        content.AppendLine("return t");
+        content.AppendLine("return cfg_i18n");
         return content;
     }
 
