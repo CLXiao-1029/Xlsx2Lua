@@ -933,8 +933,8 @@ internal class ExportLuaHelper
                         }
                     }else
                     {
-Logger.LogWarning($"行数[{row}],列数[1],Key：{mainKey}");
-}
+                        Logger.LogWarning($"行数[{row}],列数[1],Key：{mainKey}");
+                    }
                     // MultilingualList.Add(mainKey,values);
                 }
                 //获取附表
