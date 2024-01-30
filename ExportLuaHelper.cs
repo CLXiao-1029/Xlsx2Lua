@@ -696,6 +696,14 @@ internal class ExportLuaHelper
                 
                 var rowData = dataInfo.Cells[rowIdx, columnIdx].Value;
                 bool isNull = rowData == null;
+                if (!isNull)
+                {
+                    if (ExcelErrorValue.Values.IsErrorValue(rowData))
+                    {
+                        Logger.LogError($"表名：{tableName} ,第{rowIdx}行{columnIdx}列，key = {varKey}，单元格值错误：{rowData}");
+                        isNull = true;
+                    }
+                }
                 var isTranslation = dataInfo.Cells[4, columnIdx].Value;
                 bool isTranslationVal = false;
                 if (isTranslation != null)
@@ -915,7 +923,19 @@ internal class ExportLuaHelper
                         //Logger.LogInfo($"行数[{row}],列数[{column}],名字:{data},数据:{rowData}");
                         values.Add(rowData);
                     }
-                    MultilingualList.Add(mainKey,values);
+                    //MultilingualList.Add(mainKey,values);
+                    
+                    if (mainKey != null)
+                    {
+                        if (!MultilingualList.TryAdd(mainKey,values))
+                        {
+                            Logger.LogWarning($"行数[{row}],列数[1],Key：{mainKey}");
+                        }
+                    }else
+                    {
+Logger.LogWarning($"行数[{row}],列数[1],Key：{mainKey}");
+}
+                    // MultilingualList.Add(mainKey,values);
                 }
                 //获取附表
                 if (package.Workbook.Worksheets.Count > 1)
