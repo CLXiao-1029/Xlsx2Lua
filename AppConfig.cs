@@ -28,6 +28,16 @@ public struct LanguageData
     }
 }
 
+/// <summary>
+/// 配置提交记录类型
+/// </summary>
+public enum ECommitRecordType
+{
+    None,
+    Git,
+    Svn
+}
+
 internal struct AppData
 {
     public string? ConfigPath { get; set; }
@@ -44,6 +54,7 @@ internal struct AppData
     public bool OutputLogFile { get; set; }
     public string[] Translations { get; set; }
     public string[] TranslationNames { get; set; }
+    public ECommitRecordType CommitRecordType { get; set; }
 
     public AppData()
     {
@@ -66,6 +77,7 @@ internal struct AppData
         OutputLogFile = false;
         Translations = new string[] { "zh","en", "jp" };
         TranslationNames = new string[] { "中文","英语", "日语" };
+        CommitRecordType = ECommitRecordType.None;
     }
 
     private void ToAppData(Dictionary<string, object> data)
@@ -99,6 +111,20 @@ internal struct AppData
             ShowLogLevel = (long)showLogLevel;
         if (data.TryGetValue("OutputLogFile", out object? outputLogFile))
             OutputLogFile = (bool)outputLogFile;
+        
+        if (data.TryGetValue("Translations", out object? translations))
+            Translations = (string[])translations;
+        if (data.TryGetValue("TranslationNames", out object? translationNames))
+            TranslationNames = (string[])translationNames;
+        
+        if (data.TryGetValue("CommitRecordType", out object? commitRecordType))
+        {
+            CommitRecordType = (ECommitRecordType) commitRecordType;
+        }
+        else
+        {
+            CommitRecordType = ECommitRecordType.None;
+        }
     }
 }
 
@@ -230,11 +256,12 @@ internal class AppConfig
     public static void SaveAppData()
     {
         string cfgPath = Path.Combine(AppDirectory, ConfigName);
-        if (!File.Exists(cfgPath))
+        if (File.Exists(cfgPath))
         {
-            FileUtils.SaveJson(cfgPath, AppData);
-            Logger.LogWarning($"保存配置文件：{cfgPath}");
+            File.Delete(cfgPath);
         }
+        FileUtils.SaveJson(cfgPath, AppData);
+        Logger.LogWarning($"保存配置文件：{cfgPath}");
     }
 
     public static void SaveLogFile()
@@ -328,6 +355,9 @@ internal class AppConfig
     /// </summary>
     public static void RefreshCommitRecord()
     {
-        CommitRecord = TortoiseGitHelper.GetLatestCommitRecord(AppData.ConfigPath);
+        if (AppData.CommitRecordType != ECommitRecordType.None)
+        {
+            CommitRecord = TortoiseGitHelper.GetLatestCommitRecord(AppData.ConfigPath);
+        }
     }
 }

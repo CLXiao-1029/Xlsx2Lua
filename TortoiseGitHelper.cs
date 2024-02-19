@@ -6,9 +6,13 @@ namespace Xlsx2Lua;
 
 internal class TortoiseGitHelper
 {
-    public static string GetLatestCommitRecord(string workPath)
+    public static string GetLatestCommitRecord(string? workPath)
     {
-        string log;
+        string log = "";
+        if (workPath == null)
+        {
+            return log;
+        }
         GitCommand("log -1 --pretty=%h",workPath,out log);
         return log.Trim();
     }

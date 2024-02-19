@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="LocationsWithSilentDeleteHolder">
+    <option name="locations">
+      <list>
+        <option value="$PROJECT_DIR$/bin/Release/net7.0/win-x86/publish" />
+        <option value="$PROJECT_DIR$/bin/Release/net7.0/osx-x64/publish" />
+        <option value="$PROJECT_DIR$/bin/Release/net7.0/win-arm/publish" />
+        <option value="$PROJECT_DIR$/bin/Release/net7.0/win-x64/publish" />
+        <option value="$PROJECT_DIR$/bin/Release/net7.0/win-arm64/publish" />
+        <option value="$PROJECT_DIR$/bin/Release/net7.0/osx-arm64/publish" />
+      </list>
+    </option>
+  </component>
+</project>

@@ -21,7 +21,10 @@ internal class Program
 
             DateTime dateTimeAll = DateTime.Now;
             AppConfig.RefreshCommitRecord();
-            Logger.LogWarning($"当前Config的最新提交记录：{AppConfig.CommitRecord}");
+            if (AppConfig.AppData.CommitRecordType != ECommitRecordType.None)
+            {
+                Logger.LogWarning($"当前Config的最新提交记录：{AppConfig.CommitRecord}");
+            }
             LoadMultiLanguageData();
             LoadExcelData();
             StartExcelToLua();
@@ -113,6 +116,10 @@ internal class Program
                 //是否输出日志文件
                 if (args.Length > 11)
                     AppConfig.AppData.OutputLogFile = bool.Parse(args[11]);
+
+                //获取提交记录类型，默认0
+                if (args.Length > 12)
+                    AppConfig.AppData.CommitRecordType = (ECommitRecordType)int.Parse(args[12]);
 
                 //保存配置数据
                 AppConfig.SaveAppData();

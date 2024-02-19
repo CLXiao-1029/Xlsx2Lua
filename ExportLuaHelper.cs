@@ -120,6 +120,7 @@ internal class ExportLuaHelper
     private static bool DataToBool(string data, out string error)
     {
         error = null;
+        data = data.ToLower();
         bool boolean = false;
         if (data.Equals("1") || data.Equals("true"))
             boolean = true;
@@ -611,7 +612,10 @@ internal class ExportLuaHelper
             comment.Append(keyValuePair.Value);
         }
         comment.Append('\n');
-        comment.AppendLine($"--ConfigLatestCommit:{AppConfig.CommitRecord}");
+        if (AppConfig.AppData.CommitRecordType != ECommitRecordType.None)
+        {
+            comment.AppendLine($"--ConfigLatestCommit:{AppConfig.CommitRecord}");
+        }
 
         return comment;
     }
@@ -650,7 +654,10 @@ internal class ExportLuaHelper
         }
         else
         {
-            content.AppendLine($"--ConfigLatestCommit:{AppConfig.CommitRecord}");
+            if (AppConfig.AppData.CommitRecordType != ECommitRecordType.None)
+            {
+                content.AppendLine($"--ConfigLatestCommit:{AppConfig.CommitRecord}");
+            }
             
             if (AppConfig.AppData.CommentFile)
                 AppendLineContent(content, $"---@type Cfg_{tableName}[]");
@@ -801,7 +808,10 @@ internal class ExportLuaHelper
         {
             string name = folders[i];
             StringBuilder merge = new StringBuilder();
-            merge.AppendLine($"--ConfigLatestCommit:{AppConfig.CommitRecord}");
+            if (AppConfig.AppData.CommitRecordType != ECommitRecordType.None)
+            {
+                merge.AppendLine($"--ConfigLatestCommit:{AppConfig.CommitRecord}");
+            }
             merge.AppendLine($"---@type Cfg_{name}");
 
             merge.AppendLine($"local cfg_{name} = {{");
