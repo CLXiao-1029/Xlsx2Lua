@@ -201,6 +201,9 @@ internal class ExportLuaHelper
             case "table":
                 result = string.IsNullOrEmpty(data) ? null : data;
                 break;
+            default:
+                    error = $"不支持的类型 {type} ";
+                break;
         }
 
         return result;

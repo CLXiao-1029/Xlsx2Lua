@@ -16,6 +16,12 @@ internal class Program
         try
         {
             // args = new[] { "--" };
+            // args = new[]
+            // {
+            //     @"E:\UserInfoData\Visual Studio\Console\Xlsx2Lua\TestExample\总表模式\Config" ,
+            //     @"E:\UserInfoData\Visual Studio\Console\Xlsx2Lua\TestExample\总表模式\LuaData",
+            //     ".lua", "6", "false", "true", "true", "true", "true", "false", "0", "true","0",
+            // };
             // 初始化参数
             InitData(args);
 

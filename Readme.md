@@ -1,5 +1,12 @@
 # XlsxToLua
-一款将Excel数据转换成lua表的工具。
+一款将Excel数据转换成lua表的工具，支持分表和总表导出，支持多语言。
+
+实时翻译功能已拆成独立功能，详情请转[XlsxTranslation](https://github.com/CLXiao-1029/XlsxTranslation)
+
+# Release 最新版本
+查看最新的[Release](https://github.com/CLXiao-1029/Xlsx2Lua/releases)版本
+
+[Release](https://github.com/CLXiao-1029/Xlsx2Lua/releases)
 
 ## .Net 版本
 >`>= v.7.0.201`
@@ -17,13 +24,18 @@
 
 ##### 程序执行方式
 运行时，根据传入的参数决定是否读配置项。
+
 当传入参数以`--`开头时，将会读取程序对应的配置文件`Xlsx2Lua.cfg`。当配置文件存在时，会以配置文件中的数据为准。如果配置文件不存在，会根据传入的参数和默认值生成配置文件并执行程序。
+
 传参说明请参照[参数说明](#参数说明)
+
 配置文件数据说明参照[配置数据](#配置文件数据)
+
 开启翻译统计时，会在配置表目录下生成一个`TranslateMain.xlsx`文件，该文件用来记录当前导表后的所有参与翻译的文本和结果。
 
 ##### 参数说明
 当前已经支持12个参数的输入。
+
 | 编号 | 类型 |默认值|是否必填| 释义 |
 | --- | ---- | ---- |-------|----|
 | 1 | `string` |  | 是 | 设置 Excel文件 目录 |
@@ -88,9 +100,13 @@ sheet名字以`|`作为分割符区分，拆分后的最后一个数据文本作
 全拼模式下`array[]`头尾拼接。示例：`array[int]`的数据：`1|3|5`，导出的数据示例`{1,3,5}`
 
 字典类型（哈希表类型）同样有两种，简写`[]`，全拼`arrayTable[]`，不过该数据类型中`[]`作为作用域性质的存在。
+
 举例1：`[id:int]`的数据`1|3|5`，导出的数据示例`{{id=1},{id=3},{id=5}`
+
 举例2：`[id:int,icon:string]`的数据`1,icon_1|3,icon_3|5,icon_5`，导出的数据示例`{{id=1,icon="icon_1"},{id=3,icon="icon_5"},{id=5,icon="icon_5"}`
+
 举例3：`arrayTable[id:int]`的数据`1|3|5`，导出的数据示例`{{id=1},{id=3},{id=5}`
+
 举例4：`arrayTable[id:int,icon:string]`的数据`1,icon_1|3,icon_3|5,icon_5`，导出的数据示例`{{id=1,icon="icon_1"},{id=3,icon="icon_5"},{id=5,icon="icon_5"}`
 
 特殊类型：`any`，原样输出数据，可以用来输出复杂的lua数据结构。在`any`类型下的数据，如果想导出`string`类型，需要使用引导包起来。示例：`any`的数据`"这是字符串"`，导出的数据示例`xx="这是字符串"`
@@ -103,7 +119,10 @@ sheet名字以`|`作为分割符区分，拆分后的最后一个数据文本作
 
 ##### 文件读写
 开启翻译统计时，会在配置表目录下生成一个`TranslateMain.xlsx`文件，该文件用来记录当前导表后的所有参与翻译的文本和结果。
-开启实时翻译时，会将结果在最后也保存到`TranslateMain.xlsx`文件中。
+
+~~开启实时翻译时，会将结果在最后也保存到`TranslateMain.xlsx`文件中~~。
+
+实时翻译功能已经移交给[XlsxTranslation](https://github.com/CLXiao-1029/XlsxTranslation)
 
 ##### 翻译API
 本软件采用的`百度翻译`[官网](https://fanyi.baidu.com/)，[翻译API](https://fanyi-api.baidu.com/api/trans/vip/translate) 
