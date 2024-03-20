@@ -13,18 +13,24 @@ internal class ExportLuaHelper
         /// 翻译主键
         /// </summary>
         public object Key;
+
         /// <summary>
         /// 语种类型和文本
         /// </summary>
         public Dictionary<object, object> Values;
     }
+
     private static readonly Dictionary<string, StringBuilder> Content = new Dictionary<string, StringBuilder>();
     private static readonly Dictionary<string, string> Comment = new Dictionary<string, string>();
     private static readonly Dictionary<object, List<object>> MultilingualList = new Dictionary<object, List<object>>();
+    private static bool isNewMultilingual = false;
 
     private static readonly Dictionary<object, MultilingualData> MultilingualDataDic =
         new Dictionary<object, MultilingualData>();
-    private static readonly Dictionary<object, List<object>> MultilingualListTmp = new Dictionary<object, List<object>>();
+
+    private static readonly Dictionary<object, List<object>> MultilingualListTmp =
+        new Dictionary<object, List<object>>();
+
     private static readonly List<object> MultilingualKeys = new List<object>();
     private static readonly List<object> MultilingualNames = new List<object>();
 
@@ -105,7 +111,8 @@ internal class ExportLuaHelper
     private static bool IsBooleanArray(string type)
     {
         type = type.ToLower();
-        return type.Equals("bool[]") || type.Equals("boolean[]") || type.Equals("array[bool]") || type.Equals("array[boolean]");
+        return type.Equals("bool[]") || type.Equals("boolean[]") || type.Equals("array[bool]") ||
+               type.Equals("array[boolean]");
     }
 
     private static bool IsArrayTable(string type)
@@ -113,7 +120,7 @@ internal class ExportLuaHelper
         type = type.ToLower();
         string pattern = @"(?i)(?<=\[)(.*)(?=\])";
         Match match = Regex.Match(type, pattern);
-        
+
         return match.Success;
     }
 
@@ -180,7 +187,7 @@ internal class ExportLuaHelper
                 break;
             case "double":
                 double doubleVal;
-                if (!double.TryParse(data,out doubleVal))
+                if (!double.TryParse(data, out doubleVal))
                 {
                     error = $"非法的Double类型的值 {data}";
                     return result;
@@ -193,8 +200,8 @@ internal class ExportLuaHelper
                 bool booleanVal = DataToBool(data, out error);
                 if (error != null)
                     return result;
-                result = booleanVal.ToString().ToLower(); 
-                    break;
+                result = booleanVal.ToString().ToLower();
+                break;
             case "string":
                 result = string.IsNullOrEmpty(data) ? null : $"\"{data}\"";
                 break;
@@ -202,7 +209,7 @@ internal class ExportLuaHelper
                 result = string.IsNullOrEmpty(data) ? null : data;
                 break;
             default:
-                    error = $"不支持的类型 {type} ";
+                error = $"不支持的类型 {type} ";
                 break;
         }
 
@@ -232,7 +239,7 @@ internal class ExportLuaHelper
                 error = null;
                 if (string.IsNullOrEmpty(values))
                     continue;
-                
+
                 Dictionary<string, object> node = new Dictionary<string, object>();
                 string[] valArr = values.Split(",");
                 //检测有效值长度
@@ -246,7 +253,7 @@ internal class ExportLuaHelper
 
                     if (string.IsNullOrEmpty(error))
                     {
-                        node.Add(key,ParseDefaultValue(valType,value,out error));
+                        node.Add(key, ParseDefaultValue(valType, value, out error));
                     }
                     else
                     {
@@ -262,14 +269,13 @@ internal class ExportLuaHelper
                     break;
                 }
             }
-            
+
             if (string.IsNullOrEmpty(error))
             {
                 return children;
             }
 
             return null;
-
         }
         catch (Exception e)
         {
@@ -277,7 +283,7 @@ internal class ExportLuaHelper
             return null;
         }
     }
-    
+
     /// <summary>
     /// 分析数组
     /// </summary>
@@ -291,7 +297,7 @@ internal class ExportLuaHelper
         try
         {
             var results = type.Split('[');
-            if (results[results.Length-1].Equals("]"))
+            if (results[results.Length - 1].Equals("]"))
             {
                 // var str = results[results.Length - 1];
                 // type = str.Replace("]", "");
@@ -302,13 +308,13 @@ internal class ExportLuaHelper
                 Match matchArray = Regex.Match(type, @"(?i)(?<=\[)(.*)(?=\])");
                 type = matchArray.Value;
             }
-            
+
             List<object> children = new List<object>();
             string[] valStrLst = data.Split('|');
             for (int i = 0; i < valStrLst.Length; ++i)
             {
                 string value = valStrLst[i];
-                
+
                 if (string.IsNullOrEmpty(value) || string.IsNullOrWhiteSpace(value))
                     continue;
                 if (string.IsNullOrEmpty(error))
@@ -330,7 +336,7 @@ internal class ExportLuaHelper
             return null;
         }
     }
-    
+
     /// <summary>
     /// 分析类型转换
     /// </summary>
@@ -343,10 +349,10 @@ internal class ExportLuaHelper
         {
             AppConfig.varTypeInfos.Clear();
         }
-        
+
         if (string.IsNullOrEmpty(type))
             return "any";
-        
+
         string typeString = type.Trim().ToLower();
 
         if (IsNumber(typeString))
@@ -411,6 +417,7 @@ internal class ExportLuaHelper
                     }
                 }
             }
+
             arrayTableStr.Remove(arrayTableStr.Length - 1, 1);
             arrayTableStr.Append('>');
             if (isAnnotation)
@@ -418,9 +425,10 @@ internal class ExportLuaHelper
                 AppConfig.varTypeInfos.Remove(AppConfig.varTypeInfos.Length - 1, 1);
                 AppConfig.varTypeInfos.Append('}');
             }
+
             return arrayTableStr.ToString();
         }
-        
+
         if (typeString.StartsWith("[") && typeString.EndsWith("]"))
         {
             Match matchArray = Regex.Match(typeString, @"(?i)(?<=\[)(.*)(?=\])");
@@ -433,6 +441,7 @@ internal class ExportLuaHelper
                     return $"{val}[]";
                 }
             }
+
             string pattern = @"([a-z]+):([a-z]+)";
             MatchCollection matchCollection = Regex.Matches(typeString, pattern);
             StringBuilder tb = new StringBuilder();
@@ -441,6 +450,7 @@ internal class ExportLuaHelper
             {
                 AppConfig.varTypeInfos.Append('{');
             }
+
             foreach (Match match in matchCollection)
             {
                 string key = match.Groups[1].Value;
@@ -454,11 +464,11 @@ internal class ExportLuaHelper
                 }
             }
 
-            tb.Remove(tb.Length - 1,1);
+            tb.Remove(tb.Length - 1, 1);
             tb.Append('>');
             if (isAnnotation)
             {
-                AppConfig.varTypeInfos.Remove(AppConfig.varTypeInfos.Length - 1,1);
+                AppConfig.varTypeInfos.Remove(AppConfig.varTypeInfos.Length - 1, 1);
                 AppConfig.varTypeInfos.Append('}');
             }
 
@@ -467,7 +477,7 @@ internal class ExportLuaHelper
 
         return "any";
     }
-    
+
     /// <summary>
     /// 转换lua数据
     /// </summary>
@@ -488,10 +498,10 @@ internal class ExportLuaHelper
             if (!isNull)
             {
                 var s = data.ToString();
-                if (int.TryParse(s, out var result) || 
-                    long.TryParse(s,out var result1) || 
-                    float.TryParse(s,out var result2) || 
-                    double.TryParse(s,out var result3))
+                if (int.TryParse(s, out var result) ||
+                    long.TryParse(s, out var result1) ||
+                    float.TryParse(s, out var result2) ||
+                    double.TryParse(s, out var result3))
                 {
                     isNull = false;
                 }
@@ -502,14 +512,16 @@ internal class ExportLuaHelper
 
                 if (!isNull)
                 {
-                    AppendLineContentIndent(content,$"{key} = {data},");
+                    AppendLineContentIndent(content, $"{key} = {data},");
                 }
             }
-        }else if (IsString(type))
+        }
+        else if (IsString(type))
         {
             if (!isNull)
-                AppendLineContentIndent(content,$"{key} = \"{data}\",");
-        }else if (IsBoolean(type))
+                AppendLineContentIndent(content, $"{key} = \"{data}\",");
+        }
+        else if (IsBoolean(type))
         {
             if (!isNull)
             {
@@ -518,21 +530,23 @@ internal class ExportLuaHelper
                 bool boolean = DataToBool(boolData, out error);
                 if (error != null)
                     Logger.LogError($"表名：{name} ,第{row}行{column}列，key = {key}，{error}");
-                
-                AppendLineContentIndent(content,$"{key} = {boolean.ToString().ToLower()},");
+
+                AppendLineContentIndent(content, $"{key} = {boolean.ToString().ToLower()},");
             }
-        }else if (IsTable(type))
+        }
+        else if (IsTable(type))
         {
             if (!isNull)
-                AppendLineContentIndent(content,$"{key} = {data},");
-        }else if (IsNumberArray(type)
-                  || IsStringArray(type)
-                  || IsTableArray(type)
-                  || IsBooleanArray(type))
+                AppendLineContentIndent(content, $"{key} = {data},");
+        }
+        else if (IsNumberArray(type)
+                 || IsStringArray(type)
+                 || IsTableArray(type)
+                 || IsBooleanArray(type))
         {
             if (!isNull)
             {
-                AppendLineContentIndent(content ,$"{key} = {{");
+                AppendLineContentIndent(content, $"{key} = {{");
                 ++AppConfig.IndentLevel;
                 string error;
                 var dataObjs = AnalyzeArray(data.ToString(), type, out error);
@@ -544,14 +558,17 @@ internal class ExportLuaHelper
                 {
                     for (int i = 0; i < dataObjs.Count; i++)
                     {
-                        AppendLineContentIndent(content,$"{dataObjs[i]},");
+                        AppendLineContentIndent(content, $"{dataObjs[i]},");
                     }
+
                     content.Remove(content.Length - 1, 1);
                 }
+
                 --AppConfig.IndentLevel;
                 AppendLineContentIndent(content, "},");
             }
-        }else if (IsArrayTable(type))
+        }
+        else if (IsArrayTable(type))
         {
             if (!isNull)
             {
@@ -559,7 +576,7 @@ internal class ExportLuaHelper
                 ++AppConfig.IndentLevel;
                 string error;
                 var dataObjs = AnalyzeTable(data.ToString(), type, out error);
-                
+
                 if (error != null)
                     Logger.LogError($"表名：{name} ,第{row}行{column}列，{error}");
 
@@ -574,12 +591,13 @@ internal class ExportLuaHelper
                         {
                             AppendLineContentIndent(content, $"{node.Key} = {node.Value},");
                         }
+
                         --AppConfig.IndentLevel;
                         content.Remove(content.Length - 1, 1);
                         AppendLineContentIndent(content, "},");
                     }
                 }
-                
+
                 --AppConfig.IndentLevel;
                 AppendLineContentIndent(content, "},");
             }
@@ -589,9 +607,10 @@ internal class ExportLuaHelper
             if (!isNull)
                 AppendLineContentIndent(content, $"{key} = {data},");
         }
+
         --AppConfig.IndentLevel;
     }
-    
+
     /// <summary>
     /// 添加注释
     /// </summary>
@@ -610,10 +629,11 @@ internal class ExportLuaHelper
     public static StringBuilder CommentToString()
     {
         StringBuilder comment = new StringBuilder();
-        foreach (KeyValuePair<string,string> keyValuePair in Comment)
+        foreach (KeyValuePair<string, string> keyValuePair in Comment)
         {
             comment.Append(keyValuePair.Value);
         }
+
         comment.Append('\n');
         if (AppConfig.AppData.CommitRecordType != ECommitRecordType.None)
         {
@@ -631,14 +651,14 @@ internal class ExportLuaHelper
     /// <returns></returns>
     public static void AddLuaContent(string name, StringBuilder content)
     {
-        if (Content.TryGetValue(name,out StringBuilder? stringBuilder))
+        if (Content.TryGetValue(name, out StringBuilder? stringBuilder))
         {
             stringBuilder.AppendLine(content.ToString());
         }
         else
         {
             content.AppendLine();
-            Content.Add(name,content);
+            Content.Add(name, content);
         }
     }
 
@@ -649,11 +669,11 @@ internal class ExportLuaHelper
         int rows = dataInfo.Rows;
         StringBuilder content = new StringBuilder();
         bool isSummary = AppConfig.AppData.SummaryConfig;
-        
+
         if (isSummary)
         {
-            AppendLineContentIndent(content,$"---@type Cfg_{tableName}[]");
-            AppendLineContentIndent(content,$"{tableName} = {{");
+            AppendLineContentIndent(content, $"---@type Cfg_{tableName}[]");
+            AppendLineContentIndent(content, $"{tableName} = {{");
         }
         else
         {
@@ -661,26 +681,25 @@ internal class ExportLuaHelper
             {
                 content.AppendLine($"--ConfigLatestCommit:{AppConfig.CommitRecord}");
             }
-            
+
             if (AppConfig.AppData.CommentFile)
                 AppendLineContent(content, $"---@type Cfg_{tableName}[]");
             else
-                AppConfig.GenAnnotation(tableName,content);
-            
-            AppendLineContent(content,$"local {tableName} = {{");
+                AppConfig.GenAnnotation(tableName, content);
+
+            AppendLineContent(content, $"local {tableName} = {{");
             --AppConfig.IndentLevel;
         }
 
         int starIdx = (int)AppConfig.AppData.StartingRow;
         for (int rowIdx = starIdx; rowIdx <= rows; ++rowIdx)
         {
-            
             int rowIndex = rowIdx - 1;
             var valueId = dataInfo.Cells[rowIdx, 1].Value;
             ++AppConfig.IndentLevel;
             if (AppConfig.AppData.OutputArray)
             {
-                AppendLineContentIndent(content,'{');
+                AppendLineContentIndent(content, '{');
             }
             else
             {
@@ -688,10 +707,10 @@ internal class ExportLuaHelper
                 {
                     continue;
                 }
-                
-                AppendLineContentIndent(content,$"[{valueId}] = {{");
+
+                AppendLineContentIndent(content, $"[{valueId}] = {{");
             }
-            
+
             for (int columnIdx = 1; columnIdx < columns + 1; ++columnIdx)
             {
                 int columnIndex = columnIdx - 1;
@@ -700,10 +719,10 @@ internal class ExportLuaHelper
                     continue;
                 }
 
-                
+
                 string varKey = AppConfig.varNames[columnIndex];
                 string varType = AppConfig.varTypes[columnIndex];
-                
+
                 var rowData = dataInfo.Cells[rowIdx, columnIdx].Value;
                 bool isNull = rowData == null;
                 if (!isNull)
@@ -714,13 +733,14 @@ internal class ExportLuaHelper
                         isNull = true;
                     }
                 }
+
                 var isTranslation = dataInfo.Cells[4, columnIdx].Value;
                 bool isTranslationVal = false;
                 if (isTranslation != null)
                 {
                     isTranslationVal = isTranslation.ToString().ToLower().Equals("true");
                 }
-                
+
                 if (isTranslationVal)
                 {
                     string keyId = $"{tableName}_{varKey}_{valueId}";
@@ -728,8 +748,9 @@ internal class ExportLuaHelper
                     {
                         if (!MultilingualList.ContainsKey(keyId))
                         {
+                            isNewMultilingual = true;
                             // 新增翻译多语言
-                            MultilingualList.Add(keyId,new List<object>(){rowData});
+                            MultilingualList.Add(keyId, new List<object>() { rowData });
                         }
                         else
                         {
@@ -737,26 +758,28 @@ internal class ExportLuaHelper
                             var multilingual = MultilingualList[keyId];
                             if (!multilingual[0].Equals(rowData))
                             {
-                               // 不一样则加入标志，填入翻译表的附表中
-                               // 第一列填入key,第二列填入新值，第二列填入旧值
-                               if (MultilingualListTmp.ContainsKey(keyId))
-                               {
-                                   MultilingualListTmp[keyId] = new List<object>() { multilingual[0], rowData };
-                               }
-                               else
-                               {
-                                   MultilingualListTmp.Add(keyId,new List<object>(){multilingual[0],rowData});
-                               }
+                                // 不一样则加入标志，填入翻译表的附表中
+                                // 第一列填入key,第二列填入新值，第二列填入旧值
+                                if (MultilingualListTmp.ContainsKey(keyId))
+                                {
+                                    MultilingualListTmp[keyId] = new List<object>() { multilingual[0], rowData };
+                                }
+                                else
+                                {
+                                    MultilingualListTmp.Add(keyId, new List<object>() { multilingual[0], rowData });
+                                }
                             }
                         }
                     }
 
                     rowData = keyId;
                 }
+
                 GenLuaTableData(tableName, content, varKey, varType, rowData, isNull, rowIdx, columnIdx);
             }
-            AppendContentIndent(content,"},");
-            AppendLineContentIndent(content,"");
+
+            AppendContentIndent(content, "},");
+            AppendLineContentIndent(content, "");
             --AppConfig.IndentLevel;
         }
 
@@ -765,11 +788,11 @@ internal class ExportLuaHelper
         else
         {
             ++AppConfig.IndentLevel;
-            AppendLineContent(content,'}');
-            AppendLineContent(content,"");
-            AppendLineContent(content,$"return {tableName}");
+            AppendLineContent(content, '}');
+            AppendLineContent(content, "");
+            AppendLineContent(content, $"return {tableName}");
         }
-        
+
         return content;
     }
 
@@ -777,7 +800,7 @@ internal class ExportLuaHelper
     /// 获取总表
     /// </summary>
     /// <returns></returns>
-    public static Dictionary<string,StringBuilder> GetSummaryConfigTable()
+    public static Dictionary<string, StringBuilder> GetSummaryConfigTable()
     {
         Dictionary<string, List<string>> folderTables = new Dictionary<string, List<string>>();
         string curFolderName = null;
@@ -788,9 +811,10 @@ internal class ExportLuaHelper
                 curFolderName = item.Value.FolderName;
                 folderTables.Add(curFolderName, new List<string>());
             }
+
             folderTables[curFolderName].Add(item.Value.TableName);
         }
-        
+
         StringBuilder comment = new StringBuilder();
         string[] folders = folderTables.Keys.ToArray();
         for (int i = 0; i < folders.Length; i++)
@@ -802,11 +826,12 @@ internal class ExportLuaHelper
             {
                 comment.AppendLine($"---@field {tableName} Cfg_{tableName}[]");
             }
+
             comment.AppendLine();
             AddComment(folders[i], comment.ToString());
         }
 
-        Dictionary<string,StringBuilder> builders = new Dictionary<string,StringBuilder>();
+        Dictionary<string, StringBuilder> builders = new Dictionary<string, StringBuilder>();
         for (int i = 0; i < folders.Length; i++)
         {
             string name = folders[i];
@@ -815,6 +840,7 @@ internal class ExportLuaHelper
             {
                 merge.AppendLine($"--ConfigLatestCommit:{AppConfig.CommitRecord}");
             }
+
             merge.AppendLine($"---@type Cfg_{name}");
 
             merge.AppendLine($"local cfg_{name} = {{");
@@ -825,7 +851,7 @@ internal class ExportLuaHelper
             merge.AppendLine("");
 
             merge.Append($"return cfg_{name}");
-            builders.Add(name,merge);
+            builders.Add(name, merge);
         }
 
         return builders;
@@ -851,10 +877,12 @@ internal class ExportLuaHelper
             {
                 AppendLineContentIndent(content, $"[\"{itemValues.Key}\"] = \"{itemValues.Value}\",");
             }
+
             --AppConfig.IndentLevel;
             content.Remove(content.Length - 1, 1);
             AppendLineContentIndent(content, "},");
         }
+
         content.Remove(content.Length - 1, 1);
         content.AppendLine("}");
 
@@ -866,6 +894,7 @@ internal class ExportLuaHelper
         {
             AppendLineContentIndent(content, $"{item.Key} = multilingual[\"{item.Value[0]}\"],");
         }
+
         content.Remove(content.Length - 1, 1);
         content.AppendLine("}");
         content.AppendLine();
@@ -876,12 +905,13 @@ internal class ExportLuaHelper
         content.AppendLine("setmetatable(cfg_i18n, {");
         content.AppendLine("\t__index = function (t, key)");
         content.AppendLine("\t\tif i18n[key] then return i18n[key][t.language] end");
-        content.AppendLine("\t\tprint(i18n[key],(\"index == nil 多语言中不存在键：%s\\n%s\"):format(tostring(key), debug.traceback()))");
+        content.AppendLine(
+            "\t\tprint(i18n[key],(\"index == nil 多语言中不存在键：%s\\n%s\"):format(tostring(key), debug.traceback()))");
         content.AppendLine("\t\treturn tostring(key)");
         content.AppendLine("\tend");
         content.AppendLine("})");
         content.AppendLine();
-        
+
         content.AppendLine("return cfg_i18n");
         return content;
     }
@@ -892,6 +922,7 @@ internal class ExportLuaHelper
     /// <param name="filePath"></param>
     public static void LoadMultiLanguageData(string filePath)
     {
+        isNewMultilingual = false;
         MultilingualList.Clear();
         MultilingualKeys.Clear();
         MultilingualNames.Clear();
@@ -911,7 +942,7 @@ internal class ExportLuaHelper
                 int rows = worksheet.Dimension.Rows;
                 //获取有效列数
                 int columns = worksheet.Dimension.Columns;
-                
+
                 //获取注释数据
                 for (int column = 2; column <= columns; ++column)
                 {
@@ -923,7 +954,7 @@ internal class ExportLuaHelper
                         MultilingualKeys.Add(data1.Value);
                     }
                 }
-                
+
                 // 开始遍历行数
                 for (int row = 4; row < rows + 1; ++row)
                 {
@@ -939,14 +970,21 @@ internal class ExportLuaHelper
 
                     if (mainKey != null)
                     {
-                        if (!MultilingualList.TryAdd(mainKey,values))
+                        if (!MultilingualList.ContainsKey(mainKey))
+                        {
+                            isNewMultilingual = true;
+                            MultilingualList.Add(mainKey, values);
+                        }
+                        else
                         {
                             Logger.LogWarning($"行数[{row}],列数[1],Key：{mainKey}");
                         }
-                    }else
+                    }
+                    else
                         Logger.LogWarning($"行数[{row}],列数[1],Key：{mainKey}");
                     // MultilingualList.Add(mainKey,values);
                 }
+
                 //获取附表
                 if (package.Workbook.Worksheets.Count > 1)
                 {
@@ -966,7 +1004,7 @@ internal class ExportLuaHelper
                                     //Logger.LogInfo($"行数[{row}],列数[{column}],名字:{data},数据:{rowData}");
                                     values.Add(rowData);
                                 }
-                                
+
                                 MultilingualListTmp.Add(mainKey, values);
                             }
                         }
@@ -984,7 +1022,7 @@ internal class ExportLuaHelper
                 MultilingualNames.Add(data);
             }
         }
-        
+
         //整合已经存在的翻译
         RefreshMultiLanguageData();
     }
@@ -1007,9 +1045,11 @@ internal class ExportLuaHelper
                 {
                     val = keyValuePair.Value[i];
                 }
-                data.Values.Add(key,val);
+
+                data.Values.Add(key, val);
             }
-            MultilingualDataDic.TryAdd(data.Key,data);
+
+            MultilingualDataDic.TryAdd(data.Key, data);
         }
     }
 
@@ -1017,17 +1057,18 @@ internal class ExportLuaHelper
     /// 保存翻译多语言表
     /// </summary>
     /// <param name="filePath"></param>
-    public static void SaveMultiLanguageData(string filePath)
+    private static void SaveMultiLanguageData(string filePath)
     {
-        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;//指明非商业应用
+        ExcelPackage.LicenseContext = LicenseContext.NonCommercial; //指明非商业应用
         using (ExcelPackage package = new ExcelPackage(new FileInfo(filePath)))
         {
             if (package.Workbook.Worksheets.Count == 0)
             {
                 package.Workbook.Worksheets.Add("翻译表");
             }
+
             ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
-            
+
             // 添加表头
             worksheet.Cells[1, 1].Value = "多语言Key";
             worksheet.Cells[2, 1].Value = "key";
@@ -1039,6 +1080,7 @@ internal class ExportLuaHelper
                 worksheet.Cells[1, i + 2].Value = name;
                 worksheet.Cells[2, i + 2].Value = key;
             }
+
             // 添加内容
             var keys = MultilingualList.Keys.ToArray();
             for (int i = 0; i < keys.Length; i++)
@@ -1051,16 +1093,17 @@ internal class ExportLuaHelper
                 {
                     var val = lst[j];
                     //第二列开始
-                    worksheet.Cells[i + 4, j+ 2].Value = val;
+                    worksheet.Cells[i + 4, j + 2].Value = val;
                 }
             }
+
             // 修改表头背景颜色
             for (int i = 0; i < 3; i++)
             {
                 worksheet.Rows[i + 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                worksheet.Rows[i + 1].Style.Fill.BackgroundColor.SetColor(255,112,173,71);
+                worksheet.Rows[i + 1].Style.Fill.BackgroundColor.SetColor(255, 112, 173, 71);
             }
-            
+
             // 添加附表
             if (MultilingualListTmp.Count > 0)
             {
@@ -1085,19 +1128,35 @@ internal class ExportLuaHelper
                     {
                         var val = lst[j];
                         //第二列开始
-                        worksheet1.Cells[i + 4, j+ 2].Value = val;
+                        worksheet1.Cells[i + 4, j + 2].Value = val;
                     }
                 }
+
                 // 修改表头背景颜色
                 for (int i = 0; i < 3; i++)
                 {
                     worksheet1.Rows[i + 1].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                    worksheet1.Rows[i + 1].Style.Fill.BackgroundColor.SetColor(255,112,173,71);
+                    worksheet1.Rows[i + 1].Style.Fill.BackgroundColor.SetColor(255, 112, 173, 71);
                 }
             }
-            
+
             // 保存
             package.Save();
+        }
+    }
+
+    public static void OutMainExcel(string filePath)
+    {
+        var file = new FileInfo(filePath);
+        if (!file.Exists)
+        {
+            SaveMultiLanguageData(filePath);
+        }
+        else if (isNewMultilingual)
+        {
+            if (file.Exists)
+                file.Delete();
+            SaveMultiLanguageData(filePath);
         }
     }
 }

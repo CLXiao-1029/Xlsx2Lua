@@ -341,10 +341,7 @@ internal class Program
 
     static void OutMainExcel()
     {
-        string filePath = Path.Combine(AppConfig.AppData.ConfigPath, AppConfig.MultilingualName);
-        FileInfo file = new FileInfo(filePath);
-        if (file.Exists)
-            file.Delete();
-        ExportLuaHelper.SaveMultiLanguageData(filePath);
+        var filePath = Path.Combine(AppConfig.AppData.ConfigPath, AppConfig.MultilingualName);
+        ExportLuaHelper.OutMainExcel(filePath);
     }
 }
