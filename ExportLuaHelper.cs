@@ -519,7 +519,12 @@ internal class ExportLuaHelper
         else if (IsString(type))
         {
             if (!isNull)
-                AppendLineContentIndent(content, $"{key} = \"{data}\",");
+            {
+                if (!string.IsNullOrEmpty(data.ToString()) && !string.IsNullOrWhiteSpace(data.ToString()))
+                {
+                    AppendLineContentIndent(content, $"{key} = \"{data}\",");
+                }
+            }
         }
         else if (IsBoolean(type))
         {
